@@ -3,231 +3,95 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Baroud Auction 🔥</title>
-    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <title>Baroud Auction Debug Mode</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        /* تصميم Dark Mode مرعب */
-        body {
-            background-color: #0d0d0d;
-            color: #fff;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            text-align: center;
-            margin: 0;
-            padding: 20px;
-        }
+        body { background-color: #0d0d0d; color: #fff; font-family: sans-serif; text-align: center; padding: 20px; }
         .container { max-width: 600px; margin: auto; }
+        .auction-card { background: #1a1a1a; border: 2px solid #333; border-radius: 20px; padding: 25px; margin-top: 20px; }
+        h1 { color: #00ff88; }
+        .price-box { font-size: 3em; color: #00ff88; margin: 15px 0; }
         
-        /* كرت المزاد */
-        .auction-card {
-            background: #1a1a1a;
-            border: 2px solid #333;
-            border-radius: 20px;
-            padding: 25px;
-            margin-top: 20px;
-            box-shadow: 0 0 30px rgba(0, 255, 136, 0.1);
+        /* صندوق الأخطاء الجديد */
+        #debug-console {
+            background: #333;
+            color: #ffeb3b; /* أصفر */
+            text-align: left;
+            padding: 10px;
+            margin-top: 30px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 0.8em;
+            border: 1px solid #555;
+            direction: ltr; /* عشان الانكليزي يبين صح */
+            min-height: 100px;
         }
-        
-        h1 { color: #00ff88; text-shadow: 0 0 10px #00ff88; margin-bottom: 5px; }
-        .live-badge { background: red; color: white; padding: 5px 15px; border-radius: 20px; font-weight: bold; font-size: 0.8em; animation: pulse 1.5s infinite; }
-        
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
-
-        .price-box {
-            font-size: 3.5em;
-            font-weight: bold;
-            color: #00ff88;
-            margin: 15px 0;
-            text-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
-        }
-        
-        .timer {
-            font-size: 1.8em;
-            color: #ff3333;
-            font-weight: bold;
-            background: #220000;
-            display: inline-block;
-            padding: 5px 20px;
-            border-radius: 10px;
-            border: 1px solid #ff3333;
-        }
-        
-        input {
-            width: 70%;
-            padding: 15px;
-            font-size: 1.2em;
-            background: #000;
-            border: 1px solid #444;
-            color: white;
-            border-radius: 10px;
-            text-align: center;
-            margin-bottom: 10px;
-        }
-
-        .btn-bid {
-            background: linear-gradient(45deg, #00ff88, #00cc6a);
-            border: none;
-            padding: 15px 40px;
-            font-size: 1.2em;
-            color: #000;
-            font-weight: bold;
-            border-radius: 50px;
-            cursor: pointer;
-            width: 100%;
-            transition: transform 0.1s;
-        }
-        .btn-bid:active { transform: scale(0.95); }
-
-        .feed { margin-top: 30px; text-align: right; border-top: 1px solid #333; padding-top: 20px; }
-        .feed-item { background: #222; padding: 10px; margin-bottom: 5px; border-radius: 5px; border-right: 3px solid #00ff88; animation: slideIn 0.3s; }
-        @keyframes slideIn { from { transform: translateX(20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
     </style>
 </head>
 <body>
 
 <div class="container">
     <h1>🔥 Baroud Auction</h1>
-    <span class="live-badge">LIVE 🔴</span>
     
-    <div class="auction-card" id="auction-card">
-        <h2 id="item-title">جاري الاتصال بالسيرفر...</h2>
-        <p id="item-desc" style="color:#aaa;">يرجى الانتظار</p>
-        
-        <div class="timer" id="timer">--:--:--</div>
+    <div class="auction-card">
+        <h2 id="item-title">جاري الاتصال...</h2>
         <div class="price-box" id="current-price">$...</div>
-        
-        <p style="color: #aaa; margin-top: 20px;">أقل زيادة: <span id="min-inc">$1</span></p>
-        
-        <input type="number" id="bid-amount" placeholder="أدخل مبلغ المزايدة">
-        <button class="btn-bid" onclick="placeBid()">زايد الآن 🔨</button>
     </div>
 
-    <div class="feed">
-        <h3>📊 شريط المزايدات</h3>
-        <div id="bids-list">
-            <div style="color: #555; text-align: center;">بانتظار المزايدة الأولى...</div>
-        </div>
-    </div>
+    <div id="debug-console">Waiting for logs...<br></div>
 </div>
 
 <script>
-    // 1. مفاتيحك الخاصة (تم وضعها بنجاح ✅)
-    const supabaseUrl = 'https://lnamqekqpqyrcwpdbeuf.supabase.co';
-    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxuYW1xZWtxcHF5cmN3cGRiZXVmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA1MDM1NjEsImV4cCI6MjA4NjA3OTU2MX0.SFrtJOP2aBwe2PvOXQRb-IWOzbMghVaMwi0CZC0x1WE';
-    
-    const supabase = supabase.createClient(supabaseUrl, supabaseKey);
-
-    // رقم المزاد اللي رح نعرضه (تأكدنا إنه موجود بالداتابيز رقم 1)
-    const auctionId = 1; 
-
-    // تشغيل النظام
-    async function init() {
-        console.log("Starting connection...");
-        
-        // جلب بيانات المزاد رقم 1
-        const { data, error } = await supabase
-            .from('auctions')
-            .select('*')
-            .eq('id', auctionId)
-            .single();
-
-        if (error) {
-            alert("❌ مشكلة بالاتصال: " + error.message);
-            document.getElementById('item-title').innerText = "خطأ بالاتصال";
-            return;
-        }
-
-        if (!data) {
-            alert("⚠️ المزاد رقم 1 غير موجود بالداتابيز!");
-            document.getElementById('item-title').innerText = "المزاد غير موجود";
-            return;
-        }
-
-        // إذا وصلنا هون، يعني الاتصال نجح 100%
-        updateUI(data);
-
-        // اشتراك بالتحديثات الفورية (Realtime)
-        supabase.channel('public:auctions')
-            .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'auctions', filter: `id=eq.${auctionId}` }, payload => {
-                updateUI(payload.new);
-            })
-            .subscribe();
-
-        // اشتراك بشريط المزايدات
-        supabase.channel('public:bids')
-            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'bids', filter: `auction_id=eq.${auctionId}` }, payload => {
-                addBidToFeed(payload.new.amount);
-            })
-            .subscribe();
+    // دالة لكتابة التقرير عالشاشة
+    function log(msg) {
+        const box = document.getElementById('debug-console');
+        box.innerHTML += `> ${msg}<br>`;
+        console.log(msg);
     }
 
-    // تحديث الشاشة
-    function updateUI(auction) {
-        document.getElementById('item-title').innerText = auction.title;
-        document.getElementById('item-desc').innerText = auction.description || 'لا يوجد وصف';
-        document.getElementById('current-price').innerText = `$${auction.current_price}`;
-        document.getElementById('min-inc').innerText = `$${auction.min_increment}`;
+    log("1. Script started...");
+
+    try {
+        const supabaseUrl = 'https://lnamqekqpqyrcwpdbeuf.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxuYW1xZWtxcHF5cmN3cGRiZXVmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA1MDM1NjEsImV4cCI6MjA4NjA3OTU2MX0.SFrtJOP2aBwe2PvOXQRb-IWOzbMghVaMwi0CZC0x1WE';
         
-        // تشغيل العداد
-        startTimer(new Date(auction.ends_at));
-    }
-
-    // وظيفة المزايدة
-    async function placeBid() {
-        const amount = document.getElementById('bid-amount').value;
-        if (!amount) return alert('حط المبلغ يا وحش!');
-
-        // ملاحظة: المزايدة تحتاج تسجيل دخول.
-        // رح نجرب نبعت الطلب، إذا فشل رح يعطيك السبب.
-        const { data, error } = await supabase.rpc('place_bid', {
-            p_auction_id: auctionId,
-            p_amount: Number(amount)
-        });
-
-        if (error) {
-            alert('⚠️ ' + error.message + '\n(ملاحظة: لازم تكون مسجل دخول لتزايد)');
-        } else if (!data.success) {
-            alert('🚫 ' + data.message);
+        log("2. Defining Supabase client...");
+        
+        if (typeof supabase === 'undefined') {
+            log("❌ ERROR: Supabase library not loaded!");
         } else {
-            alert('✅ ' + data.message);
-            document.getElementById('bid-amount').value = ''; // فضي الخانة
-        }
-    }
-
-    // العداد التنازلي
-    let timerInterval;
-    function startTimer(endTime) {
-        if (timerInterval) clearInterval(timerInterval); // تنظيف العداد القديم
-        
-        timerInterval = setInterval(() => {
-            const now = new Date().getTime();
-            const distance = endTime - now;
+            const sb = supabase.createClient(supabaseUrl, supabaseKey);
+            log("3. Client created successfully.");
             
-            if (distance < 0) {
-                clearInterval(timerInterval);
-                document.getElementById('timer').innerText = "انتهى المزاد 🏁";
-                document.getElementById('timer').style.color = "gray";
-                return;
+            async function testConnection() {
+                log("4. Attempting to fetch data...");
+                
+                const { data, error } = await sb
+                    .from('auctions')
+                    .select('*')
+                    .limit(1);
+
+                if (error) {
+                    log("❌ ERROR from Supabase: " + JSON.stringify(error));
+                } else if (!data || data.length === 0) {
+                    log("⚠️ Success connection, BUT table is empty (No data found).");
+                    document.getElementById('item-title').innerText = "الجدول فارغ";
+                } else {
+                    log("✅ SUCCESS! Data received:");
+                    log(JSON.stringify(data[0])); // عرض البيانات
+                    
+                    // تحديث الشاشة
+                    document.getElementById('item-title').innerText = data[0].title;
+                    document.getElementById('current-price').innerText = "$" + data[0].current_price;
+                }
             }
-
-            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
             
-            document.getElementById('timer').innerText = `${hours}h ${minutes}m ${seconds}s`;
-        }, 1000);
+            testConnection();
+        }
+        
+    } catch (e) {
+        log("❌ CRITICAL ERROR: " + e.message);
     }
-
-    // إضافة للشريط
-    function addBidToFeed(amount) {
-        const list = document.getElementById('bids-list');
-        const item = document.createElement('div');
-        item.className = 'feed-item';
-        item.innerHTML = `💵 مزايدة جديدة بقيمة <b>$${amount}</b>`;
-        list.prepend(item);
-    }
-
-    // بسم الله.. شغل!
-    init();
 </script>
 
 </body>
