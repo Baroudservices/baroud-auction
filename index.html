@@ -10,7 +10,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <style>
-        /* 1. الخلفية المتحركة "أخو شليته" */
+        /* نفس التصميم "أخو شليته" اللي حبيته */
         body {
             background: linear-gradient(-45deg, #0f0c29, #302b63, #24243e, #000000);
             background-size: 400% 400%;
@@ -36,7 +36,6 @@
             z-index: 2;
         }
 
-        /* 2. العنوان مع تأثير الـ Glitch */
         h1 {
             font-family: 'Orbitron', sans-serif;
             font-size: 2.5em;
@@ -55,7 +54,6 @@
             margin-bottom: 20px;
         }
 
-        /* 3. الكرت الزجاجي (Glassmorphism) */
         .card {
             background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(15px);
@@ -68,7 +66,6 @@
             overflow: hidden;
         }
 
-        /* لمعة خفيفة عالكرت */
         .card::before {
             content: '';
             position: absolute;
@@ -80,139 +77,77 @@
         }
         @keyframes shine { 0% { left: -100%; } 20% { left: 100%; } 100% { left: 100%; } }
 
-        /* حالة البث المباشر */
         .live-tag {
             position: absolute;
-            top: 20px;
-            left: 20px;
+            top: 20px; left: 20px;
             background: #ff0055;
             color: #fff;
             padding: 5px 12px;
             border-radius: 15px;
-            font-size: 0.7em;
-            font-weight: bold;
+            font-size: 0.7em; font-weight: bold;
             box-shadow: 0 0 15px #ff0055;
             animation: pulse 1s infinite;
         }
 
-        /* صورة المنتج */
         .item-img {
-            width: 100px;
-            height: 100px;
-            background: #222;
-            border-radius: 50%;
+            width: 100px; height: 100px;
+            background: #222; border-radius: 50%;
             margin: 0 auto 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display: flex; align-items: center; justify-content: center;
             font-size: 2em;
             border: 2px solid #00ffea;
             box-shadow: 0 0 20px rgba(0, 255, 234, 0.3);
         }
 
-        /* 4. السعر والعداد */
-        .price-container {
-            text-align: center;
-            margin: 20px 0;
-        }
+        .price-container { text-align: center; margin: 20px 0; }
         .current-price {
             font-family: 'Orbitron', sans-serif;
-            font-size: 3.5em;
-            font-weight: 700;
+            font-size: 3.5em; font-weight: 700;
             color: #00ffea;
             text-shadow: 0 0 20px rgba(0, 255, 234, 0.6);
             margin: 0;
         }
         .timer {
             font-family: 'Orbitron', sans-serif;
-            font-size: 1.2em;
-            color: #ff0055;
+            font-size: 1.2em; color: #ff0055;
             text-shadow: 0 0 10px rgba(255, 0, 85, 0.5);
             margin-top: 5px;
         }
 
-        /* 5. المدخلات والأزرار */
-        .input-group {
-            position: relative;
-            margin-top: 30px;
-        }
+        .input-group { position: relative; margin-top: 30px; }
         
         input[type="number"] {
-            width: 100%;
-            padding: 15px;
+            width: 100%; padding: 15px;
             background: rgba(0, 0, 0, 0.5);
-            border: 2px solid #333;
-            border-radius: 15px;
-            color: #fff;
-            font-size: 1.2em;
-            text-align: center;
-            font-family: 'Orbitron', sans-serif;
-            outline: none;
-            transition: 0.3s;
-            box-sizing: border-box; /* مهم عشان ما يطلع برا */
+            border: 2px solid #333; border-radius: 15px;
+            color: #fff; font-size: 1.2em; text-align: center;
+            font-family: 'Orbitron', sans-serif; outline: none;
+            transition: 0.3s; box-sizing: border-box;
         }
-        input:focus {
-            border-color: #00ffea;
-            box-shadow: 0 0 15px rgba(0, 255, 234, 0.2);
-        }
+        input:focus { border-color: #00ffea; box-shadow: 0 0 15px rgba(0, 255, 234, 0.2); }
 
         button {
-            width: 100%;
-            padding: 18px;
-            margin-top: 15px;
-            border: none;
-            border-radius: 15px;
+            width: 100%; padding: 18px; margin-top: 15px;
+            border: none; border-radius: 15px;
             background: linear-gradient(90deg, #00ffea, #0099ff);
-            color: #000;
-            font-size: 1.3em;
-            font-weight: 800;
-            font-family: 'Tajawal', sans-serif;
-            cursor: pointer;
+            color: #000; font-size: 1.3em; font-weight: 800;
+            font-family: 'Tajawal', sans-serif; cursor: pointer;
             box-shadow: 0 0 20px rgba(0, 255, 234, 0.4);
-            transition: transform 0.2s, box-shadow 0.2s;
-            position: relative;
-            overflow: hidden;
+            transition: transform 0.2s;
         }
         button:active { transform: scale(0.96); }
-        button::after {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(rgba(255,255,255,0.4), transparent);
-            opacity: 0;
-            transition: 0.3s;
-        }
-        button:hover::after { opacity: 1; }
 
-        /* 6. الشريط المتحرك */
-        .feed {
-            margin-top: 30px;
-        }
-        .feed h3 {
-            font-size: 1em;
-            color: #888;
-            margin-bottom: 15px;
-            border-bottom: 1px solid #333;
-            padding-bottom: 10px;
-        }
+        .feed { margin-top: 30px; }
+        .feed h3 { font-size: 1em; color: #888; margin-bottom: 15px; border-bottom: 1px solid #333; padding-bottom: 10px; }
         .bid-item {
-            background: rgba(255, 255, 255, 0.05);
-            margin-bottom: 8px;
-            padding: 12px;
-            border-radius: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            animation: slideIn 0.4s ease-out;
+            background: rgba(255, 255, 255, 0.05); margin-bottom: 8px; padding: 12px;
+            border-radius: 10px; display: flex; justify-content: space-between;
+            align-items: center; animation: slideIn 0.4s ease-out;
             border-right: 3px solid #ff0055;
         }
-        .bid-item span { font-weight: bold; }
-        .bid-item .money { color: #00ffea; font-family: 'Orbitron', sans-serif; }
+        .bid-item .money { color: #00ffea; font-family: 'Orbitron', sans-serif; font-weight: bold; }
         
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes pulse { 0% { opacity: 1; transform: scale(1); } 50% { opacity: 0.7; transform: scale(0.95); } 100% { opacity: 1; transform: scale(1); } }
     </style>
 </head>
@@ -227,40 +162,41 @@
         
         <div class="item-img">🎮</div>
         
-        <h2 id="item-title" style="text-align:center; margin:0; font-size:1.2em;">جاري تحميل المزاد...</h2>
+        <h2 id="item-title" style="text-align:center; margin:0; font-size:1.2em;">Connecting...</h2>
         
         <div class="price-container">
             <div class="timer" id="timer">--:--:--</div>
             <div class="current-price" id="current-price">$...</div>
-            <p style="color:#aaa; font-size:0.8em; margin-top:5px;">Minimum Bid Increase: <span id="min-inc" style="color:#fff">$1</span></p>
+            <p style="color:#aaa; font-size:0.8em; margin-top:5px;">Min Increase: <span id="min-inc" style="color:#fff">$1</span></p>
         </div>
         
         <div class="input-group">
             <input type="number" id="bid-amount" placeholder="Your Bid Amount ($)">
-            <button onclick="placeBid()">PLAce BID 🔨</button>
+            <button onclick="placeBid()">PLACE BID 🔨</button>
         </div>
     </div>
 
     <div class="feed">
-        <h3>Recent Activity 📊</h3>
+        <h3>Live Activity 📊</h3>
         <div id="bids-list">
-            <div style="text-align:center; color:#555; font-size:0.8em; padding:10px;">Waiting for players...</div>
+            <div style="text-align:center; color:#555; font-size:0.8em; padding:10px;">Waiting for new bids...</div>
         </div>
     </div>
 </div>
 
 <script>
-    // 🔥 الكود الميكانيكي (نفسه اللي شغال) 🔥
+    // 🔥 التصليح كان هون (غيّرنا اسم المتغير لـ sbClient) 🔥
     const supabaseUrl = 'https://lnamqekqpqyrcwpdbeuf.supabase.co';
     const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxuYW1xZWtxcHF5cmN3cGRiZXVmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA1MDM1NjEsImV4cCI6MjA4NjA3OTU2MX0.SFrtJOP2aBwe2PvOXQRb-IWOzbMghVaMwi0CZC0x1WE';
     
-    const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+    // الحل: سمينا العميل sbClient بدل supabase عشان ما يتضارب مع المكتبة
+    const sbClient = supabase.createClient(supabaseUrl, supabaseKey);
     const auctionId = 1; 
 
     async function init() {
-        console.log("Connecting to Baroud System...");
+        console.log("Connecting...");
         
-        const { data, error } = await supabase
+        const { data, error } = await sbClient
             .from('auctions')
             .select('*')
             .eq('id', auctionId)
@@ -270,18 +206,19 @@
             updateUI(data);
             setupRealtime();
         } else {
-            document.getElementById('item-title').innerText = "System Offline";
+            console.error(error);
+            document.getElementById('item-title').innerText = "Network Error";
         }
     }
 
     function setupRealtime() {
-        supabase.channel('public:auctions')
+        sbClient.channel('public:auctions')
             .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'auctions', filter: `id=eq.${auctionId}` }, payload => {
                 updateUI(payload.new);
             })
             .subscribe();
 
-        supabase.channel('public:bids')
+        sbClient.channel('public:bids')
             .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'bids', filter: `auction_id=eq.${auctionId}` }, payload => {
                 addBidToFeed(payload.new.amount);
             })
@@ -301,16 +238,14 @@
         
         if (!amount) return alert('Enter amount!');
         
-        // تأثير التحميل عالزر
         btn.innerText = "Processing...";
         btn.style.opacity = "0.7";
 
-        const { data, error } = await supabase.rpc('place_bid', {
+        const { data, error } = await sbClient.rpc('place_bid', {
             p_auction_id: auctionId,
             p_amount: Number(amount)
         });
 
-        // إرجاع الزر لطبيعته
         btn.innerText = "PLACE BID 🔨";
         btn.style.opacity = "1";
 
@@ -319,8 +254,8 @@
         } else if (data && !data.success) {
             alert("🚫 " + data.message);
         } else {
-            // تأثير نجاح
             document.getElementById('bid-amount').value = '';
+            alert("✅ " + data.message);
         }
     }
 
@@ -343,7 +278,6 @@
             const m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
             const s = Math.floor((distance % (1000 * 60)) / 1000);
             
-            // تنسيق الوقت ليبين متل الساعة الرقمية (01:05:09)
             const fmt = (n) => n < 10 ? '0'+n : n;
             document.getElementById('timer').innerText = `${fmt(h)}:${fmt(m)}:${fmt(s)}`;
         }, 1000);
