@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة تحكم الأدمن 👑</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body { background: #111; color: #fff; font-family: sans-serif; padding: 20px; text-align: center; }
+        input, button { width: 90%; padding: 15px; margin: 10px 0; border-radius: 10px; border: none; font-size: 1.1em; }
+        input { background: #222; color: #fff; border: 1px solid #444; }
+        button { background: #00ffea; color: #000; font-weight: bold; cursor: pointer; }
+        label { display: block; text-align: right; width: 90%; margin: auto; color: #aaa; }
+        .success { color: #0f0; display: none; }
+    </style>
+</head>
+<body>
+
+    <h1>👑 التحكم بالمزاد</h1>
+
+    <label>اسم الغرض (Title):</label>
+    <input type="text" id="title" placeholder="مثلاً: PUBG Account Level 80">
+
+    <label>رابط الصورة (Image URL):</label>
+    <input type="text" id="image" placeholder="رابط الصورة من النت">
+
+    <label>سعر البداية / الحالي ($):</label>
+    <input type="number" id="price" placeholder="10">
+
+    <label>موعد انتهاء المزاد:</label>
+    <input type="datetime-local" id="ends_at">
+
+    <button onclick="updateAuction()">تحديث المزاد فوراً 🚀</button>
+    <p id="msg" class="success">تم التحديث بنجاح! ✅</p>
+
+<script>
+    // مفاتيحك
+    const supabaseUrl = 'https://lnamqekqpqyrcwpdbeuf.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxuYW1xZWtxcHF5cmN3cGRiZXVmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA1MDM1NjEsImV4cCI6MjA4NjA3OTU2MX0.SFrtJOP2aBwe2PvOXQRb-IWOzbMghVaMwi0CZC0x1WE';
+    const sb = supabase.createClient(supabaseUrl, supabaseKey);
+
+    // تحديث البيانات
+    async function updateAuction() {
+        const title = document.getElementById('title').value;
+        const image = document.getElementById('image').value;
+        const price = document.getElementById('price').value;
+        const ends_at = document.getElementById('ends_at').value;
+
+        if(!title || !price || !ends_at) return alert("عبّي المعلومات يا ريس!");
+
+        // تحويل التاريخ لصيغة بيفهمها السيرفر
+        const dateISO = new Date(ends_at).toISOString();
+
+        const { error } = await sb
+            .from('auctions')
+            .update({ 
+                title: title,
+                image_url: image,
+                current_price: Number(price),
+                ends_at: dateISO,
+                winner_id: null // تصفير الرابح لفتح مزاد جديد
+            })
+            .eq('id', 1);
+
+        if(error) alert("خطأ: " + error.message);
+        else {
+            document.getElementById('msg').style.display = 'block';
+            // مسح المزايدات القديمة عشان تبلش من جديد
+            await sb.from('bids').delete().eq('auction_id', 1);
+        }
+    }
+</script>
+</body>
+</html>
