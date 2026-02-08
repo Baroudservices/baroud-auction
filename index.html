@@ -2,96 +2,362 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Baroud Auction Debug Mode</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Baroud Elite Auction 💎</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Tajawal:wght@500;800&display=swap" rel="stylesheet">
+    
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
     <style>
-        body { background-color: #0d0d0d; color: #fff; font-family: sans-serif; text-align: center; padding: 20px; }
-        .container { max-width: 600px; margin: auto; }
-        .auction-card { background: #1a1a1a; border: 2px solid #333; border-radius: 20px; padding: 25px; margin-top: 20px; }
-        h1 { color: #00ff88; }
-        .price-box { font-size: 3em; color: #00ff88; margin: 15px 0; }
-        
-        /* صندوق الأخطاء الجديد */
-        #debug-console {
-            background: #333;
-            color: #ffeb3b; /* أصفر */
-            text-align: left;
-            padding: 10px;
-            margin-top: 30px;
-            border-radius: 5px;
-            font-family: monospace;
-            font-size: 0.8em;
-            border: 1px solid #555;
-            direction: ltr; /* عشان الانكليزي يبين صح */
-            min-height: 100px;
+        /* 1. الخلفية المتحركة "أخو شليته" */
+        body {
+            background: linear-gradient(-45deg, #0f0c29, #302b63, #24243e, #000000);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            color: #fff;
+            font-family: 'Tajawal', sans-serif;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            overflow-x: hidden;
         }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .container {
+            max-width: 500px;
+            margin: auto;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* 2. العنوان مع تأثير الـ Glitch */
+        h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.5em;
+            text-align: center;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #fff;
+            text-shadow: 0 0 10px #00ffea, 0 0 20px #00ffea;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #bbb;
+            font-size: 0.9em;
+            margin-bottom: 20px;
+        }
+
+        /* 3. الكرت الزجاجي (Glassmorphism) */
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 25px;
+            padding: 30px 20px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* لمعة خفيفة عالكرت */
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -50%;
+            width: 100%; height: 100%;
+            background: linear-gradient(to right, transparent, rgba(255,255,255,0.1), transparent);
+            transform: skewX(-25deg);
+            animation: shine 6s infinite;
+        }
+        @keyframes shine { 0% { left: -100%; } 20% { left: 100%; } 100% { left: 100%; } }
+
+        /* حالة البث المباشر */
+        .live-tag {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: #ff0055;
+            color: #fff;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.7em;
+            font-weight: bold;
+            box-shadow: 0 0 15px #ff0055;
+            animation: pulse 1s infinite;
+        }
+
+        /* صورة المنتج */
+        .item-img {
+            width: 100px;
+            height: 100px;
+            background: #222;
+            border-radius: 50%;
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2em;
+            border: 2px solid #00ffea;
+            box-shadow: 0 0 20px rgba(0, 255, 234, 0.3);
+        }
+
+        /* 4. السعر والعداد */
+        .price-container {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .current-price {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 3.5em;
+            font-weight: 700;
+            color: #00ffea;
+            text-shadow: 0 0 20px rgba(0, 255, 234, 0.6);
+            margin: 0;
+        }
+        .timer {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.2em;
+            color: #ff0055;
+            text-shadow: 0 0 10px rgba(255, 0, 85, 0.5);
+            margin-top: 5px;
+        }
+
+        /* 5. المدخلات والأزرار */
+        .input-group {
+            position: relative;
+            margin-top: 30px;
+        }
+        
+        input[type="number"] {
+            width: 100%;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid #333;
+            border-radius: 15px;
+            color: #fff;
+            font-size: 1.2em;
+            text-align: center;
+            font-family: 'Orbitron', sans-serif;
+            outline: none;
+            transition: 0.3s;
+            box-sizing: border-box; /* مهم عشان ما يطلع برا */
+        }
+        input:focus {
+            border-color: #00ffea;
+            box-shadow: 0 0 15px rgba(0, 255, 234, 0.2);
+        }
+
+        button {
+            width: 100%;
+            padding: 18px;
+            margin-top: 15px;
+            border: none;
+            border-radius: 15px;
+            background: linear-gradient(90deg, #00ffea, #0099ff);
+            color: #000;
+            font-size: 1.3em;
+            font-weight: 800;
+            font-family: 'Tajawal', sans-serif;
+            cursor: pointer;
+            box-shadow: 0 0 20px rgba(0, 255, 234, 0.4);
+            transition: transform 0.2s, box-shadow 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+        button:active { transform: scale(0.96); }
+        button::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(rgba(255,255,255,0.4), transparent);
+            opacity: 0;
+            transition: 0.3s;
+        }
+        button:hover::after { opacity: 1; }
+
+        /* 6. الشريط المتحرك */
+        .feed {
+            margin-top: 30px;
+        }
+        .feed h3 {
+            font-size: 1em;
+            color: #888;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #333;
+            padding-bottom: 10px;
+        }
+        .bid-item {
+            background: rgba(255, 255, 255, 0.05);
+            margin-bottom: 8px;
+            padding: 12px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            animation: slideIn 0.4s ease-out;
+            border-right: 3px solid #ff0055;
+        }
+        .bid-item span { font-weight: bold; }
+        .bid-item .money { color: #00ffea; font-family: 'Orbitron', sans-serif; }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes pulse { 0% { opacity: 1; transform: scale(1); } 50% { opacity: 0.7; transform: scale(0.95); } 100% { opacity: 1; transform: scale(1); } }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>🔥 Baroud Auction</h1>
+    <h1>Baroud <span style="color:#00ffea">Bid</span></h1>
+    <p class="subtitle">Premium Gaming Auctions 🇱🇧</p>
     
-    <div class="auction-card">
-        <h2 id="item-title">جاري الاتصال...</h2>
-        <div class="price-box" id="current-price">$...</div>
+    <div class="card">
+        <span class="live-tag">LIVE 🔴</span>
+        
+        <div class="item-img">🎮</div>
+        
+        <h2 id="item-title" style="text-align:center; margin:0; font-size:1.2em;">جاري تحميل المزاد...</h2>
+        
+        <div class="price-container">
+            <div class="timer" id="timer">--:--:--</div>
+            <div class="current-price" id="current-price">$...</div>
+            <p style="color:#aaa; font-size:0.8em; margin-top:5px;">Minimum Bid Increase: <span id="min-inc" style="color:#fff">$1</span></p>
+        </div>
+        
+        <div class="input-group">
+            <input type="number" id="bid-amount" placeholder="Your Bid Amount ($)">
+            <button onclick="placeBid()">PLAce BID 🔨</button>
+        </div>
     </div>
 
-    <div id="debug-console">Waiting for logs...<br></div>
+    <div class="feed">
+        <h3>Recent Activity 📊</h3>
+        <div id="bids-list">
+            <div style="text-align:center; color:#555; font-size:0.8em; padding:10px;">Waiting for players...</div>
+        </div>
+    </div>
 </div>
 
 <script>
-    // دالة لكتابة التقرير عالشاشة
-    function log(msg) {
-        const box = document.getElementById('debug-console');
-        box.innerHTML += `> ${msg}<br>`;
-        console.log(msg);
-    }
+    // 🔥 الكود الميكانيكي (نفسه اللي شغال) 🔥
+    const supabaseUrl = 'https://lnamqekqpqyrcwpdbeuf.supabase.co';
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxuYW1xZWtxcHF5cmN3cGRiZXVmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA1MDM1NjEsImV4cCI6MjA4NjA3OTU2MX0.SFrtJOP2aBwe2PvOXQRb-IWOzbMghVaMwi0CZC0x1WE';
+    
+    const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+    const auctionId = 1; 
 
-    log("1. Script started...");
+    async function init() {
+        console.log("Connecting to Baroud System...");
+        
+        const { data, error } = await supabase
+            .from('auctions')
+            .select('*')
+            .eq('id', auctionId)
+            .single();
 
-    try {
-        const supabaseUrl = 'https://lnamqekqpqyrcwpdbeuf.supabase.co';
-        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxuYW1xZWtxcHF5cmN3cGRiZXVmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA1MDM1NjEsImV4cCI6MjA4NjA3OTU2MX0.SFrtJOP2aBwe2PvOXQRb-IWOzbMghVaMwi0CZC0x1WE';
-        
-        log("2. Defining Supabase client...");
-        
-        if (typeof supabase === 'undefined') {
-            log("❌ ERROR: Supabase library not loaded!");
+        if (data) {
+            updateUI(data);
+            setupRealtime();
         } else {
-            const sb = supabase.createClient(supabaseUrl, supabaseKey);
-            log("3. Client created successfully.");
-            
-            async function testConnection() {
-                log("4. Attempting to fetch data...");
-                
-                const { data, error } = await sb
-                    .from('auctions')
-                    .select('*')
-                    .limit(1);
-
-                if (error) {
-                    log("❌ ERROR from Supabase: " + JSON.stringify(error));
-                } else if (!data || data.length === 0) {
-                    log("⚠️ Success connection, BUT table is empty (No data found).");
-                    document.getElementById('item-title').innerText = "الجدول فارغ";
-                } else {
-                    log("✅ SUCCESS! Data received:");
-                    log(JSON.stringify(data[0])); // عرض البيانات
-                    
-                    // تحديث الشاشة
-                    document.getElementById('item-title').innerText = data[0].title;
-                    document.getElementById('current-price').innerText = "$" + data[0].current_price;
-                }
-            }
-            
-            testConnection();
+            document.getElementById('item-title').innerText = "System Offline";
         }
-        
-    } catch (e) {
-        log("❌ CRITICAL ERROR: " + e.message);
     }
+
+    function setupRealtime() {
+        supabase.channel('public:auctions')
+            .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'auctions', filter: `id=eq.${auctionId}` }, payload => {
+                updateUI(payload.new);
+            })
+            .subscribe();
+
+        supabase.channel('public:bids')
+            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'bids', filter: `auction_id=eq.${auctionId}` }, payload => {
+                addBidToFeed(payload.new.amount);
+            })
+            .subscribe();
+    }
+
+    function updateUI(auction) {
+        document.getElementById('item-title').innerText = auction.title;
+        document.getElementById('current-price').innerText = `$${auction.current_price}`;
+        document.getElementById('min-inc').innerText = `$${auction.min_increment}`;
+        startTimer(new Date(auction.ends_at));
+    }
+
+    async function placeBid() {
+        const amount = document.getElementById('bid-amount').value;
+        const btn = document.querySelector('button');
+        
+        if (!amount) return alert('Enter amount!');
+        
+        // تأثير التحميل عالزر
+        btn.innerText = "Processing...";
+        btn.style.opacity = "0.7";
+
+        const { data, error } = await supabase.rpc('place_bid', {
+            p_auction_id: auctionId,
+            p_amount: Number(amount)
+        });
+
+        // إرجاع الزر لطبيعته
+        btn.innerText = "PLACE BID 🔨";
+        btn.style.opacity = "1";
+
+        if (error) {
+            alert("⚠️ " + error.message);
+        } else if (data && !data.success) {
+            alert("🚫 " + data.message);
+        } else {
+            // تأثير نجاح
+            document.getElementById('bid-amount').value = '';
+        }
+    }
+
+    let timerInterval;
+    function startTimer(endTime) {
+        if (timerInterval) clearInterval(timerInterval);
+        
+        timerInterval = setInterval(() => {
+            const now = new Date().getTime();
+            const distance = endTime - now;
+            
+            if (distance < 0) {
+                clearInterval(timerInterval);
+                document.getElementById('timer').innerText = "CLOSED";
+                document.getElementById('timer').style.color = "gray";
+                return;
+            }
+
+            const h = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const s = Math.floor((distance % (1000 * 60)) / 1000);
+            
+            // تنسيق الوقت ليبين متل الساعة الرقمية (01:05:09)
+            const fmt = (n) => n < 10 ? '0'+n : n;
+            document.getElementById('timer').innerText = `${fmt(h)}:${fmt(m)}:${fmt(s)}`;
+        }, 1000);
+    }
+
+    function addBidToFeed(amount) {
+        const list = document.getElementById('bids-list');
+        const item = document.createElement('div');
+        item.className = 'bid-item';
+        item.innerHTML = `<span>New Bid 🔥</span> <span class="money">$${amount}</span>`;
+        list.prepend(item);
+    }
+
+    init();
 </script>
 
 </body>
