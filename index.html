@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Baroud Auction 🔥</title>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <style>
+        body { background-color: #0d0d0d; color: #fff; font-family: sans-serif; text-align: center; padding: 20px; }
+        .container { max-width: 500px; margin: auto; }
+        .card { background: #1a1a1a; padding: 20px; border-radius: 15px; border: 2px solid #333; margin-top: 20px; }
+        .price { font-size: 3em; color: #00ff88; font-weight: bold; margin: 10px 0; }
+        .timer { font-size: 1.5em; color: #ff3333; margin-bottom: 20px; }
+        input { padding: 15px; width: 60%; font-size: 1.2em; text-align: center; border-radius: 10px; border: none; margin-bottom: 10px; }
+        button { padding: 15px; width: 30%; font-size: 1.2em; background: #00ff88; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; }
+        .feed { margin-top: 20px; text-align: right; font-size: 0.9em; color: #aaa; border-top: 1px solid #333; padding-top: 10px;}
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🔥 مزاد بارود 🔥</h1>
+    
+    <div class="card">
+        <h2 id="title">جاري التحميل...</h2>
+        <div class="timer" id="timer">--:--:--</div>
+        <div class="price" id="price">$---</div>
+        
+        <div>
+            <input type="number" id="amount" placeholder="السعر">
+            <button onclick="bid()">زايد!</button>
+        </div>
+    </div>
+
+    <div class="feed" id="feed">
+        <h3>آخر المزايدات:</h3>
+        <div id="bids-list"></div>
+    </div>
+</div>
+
+<script>
+    // ⚠️⚠️⚠️ غير هول بالمعلومات من Supabase ⚠️⚠️⚠️
+    const supabaseUrl = 'YOUR_SUPABASE_URL';
+    const supabaseKey = 'YOUR_ANON_KEY';
+    
+    const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+    // رقم المزاد (تأكد إنك عملت واحد بالداتابيز رقمه 1)
+    let auctionId = 1; 
+
+    async function init() {
+        const { data, error } = await supabase.from('auctions').select('*').eq('id', auctionId).single();
+        if(error) console.log(error);
+        if(data) updateUI(data);
+
+        supabase.channel('auctions').on('postgres_changes', { event: '*', schema: 'public', table: 'auctions' }, payload => {
+            updateUI(payload.new);
+        }).subscribe();
+        
+        supabase.channel('bids').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'bids' }, payload => {
+            addFeed(payload.new.amount);
+        }).subscribe();
+    }
+
+    function updateUI(data) {
+        document.getElementById('title').innerText = data.title;
+        document.getElementById('price').innerText = '$' + data.current_price;
+        startTimer(new Date(data.ends_at));
+    }
+
+    async function bid() {
+        const amount = document.getElementById('amount').value;
+        // هون لازم يكون في تسجيل دخول، رح نفترضه 1 للمستقبل
+        const { data, error } = await supabase.rpc('place_bid', { p_auction_id: auctionId, p_amount: amount });
+        
+        if(error) alert(error.message);
+        else if(!data.success) alert(data.message);
+        else alert('✅ ' + data.message);
+    }
+
+    function startTimer(end) {
+        setInterval(() => {
+            const now = new Date();
+            const diff = end - now;
+            if(diff < 0) return document.getElementById('timer').innerText = "انتهى!";
+            const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const s = Math.floor((diff % (1000 * 60)) / 1000);
+            document.getElementById('timer').innerText = m + "د : " + s + "ث";
+        }, 1000);
+    }
+
+    function addFeed(amount) {
+        const div = document.createElement('div');
+        div.innerText = `🔨 شخص زايد بـ $${amount}`;
+        document.getElementById('bids-list').prepend(div);
+    }
+
+    init();
+</script>
+</body>
+</html>
